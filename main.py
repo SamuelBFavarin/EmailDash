@@ -1,73 +1,71 @@
-from flask import Flask, redirect, url_for, session
-from urllib import parse
-from urllib.parse import urljoin
-import urllib.request
-import urllib.error
-import urllib.parse as urlparse
+import requests
 import sys
-sys.modules["urlparse"] = urlparse
-sys.modules["urllib"] = urlparse
-from flask_oauth import OAuth
+from flask import Flask, redirect, url_for, session,  jsonify, request, render_template
+import os
+from flask_oauthlib.client import OAuth
+import json
 
-GOOGLE_CLIENT_ID = '927671006345-vh5i5qkmsgkko7ees7ep32g6857hb1l9.apps.googleusercontent.com'
-GOOGLE_CLIENT_SECRET = 'eG1DqibabsFWqlhaz-yHVZhN'
-REDIRECT_URI = '/authorized'
+os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = 'true'
 
-SECRET_KEY = 'development key'
+NEW_CLIENT_ID = '139796878208-bqcvtsqfmfm2qkd0m35m2tgihl2luam5.apps.googleusercontent.com'
+NEW_CLIENT_SECRET = 'TIRxLNbmOn3olWBQOWb6RfCi'
+API_KEY = 'AIzaSyDwWdr5wUhm-e1nRYMvCh4W8Aaddim9jLU'
+
 DEBUG = True
-
 app = Flask(__name__)
 app.debug = DEBUG
-app.secret_key = SECRET_KEY
+app.secret_key = 'super secret key'
+
 oauth = OAuth()
 
-google = oauth.remote_app('google',
-                          base_url='https://www.google.com/accounts/',
-                          authorize_url='https://accounts.google.com/o/oauth2/auth',
-                          request_token_url=None,
-                          request_token_params={'scope': 'https://www.googleapis.com/auth/userinfo.email',
-                                                'response_type': 'code'},
-                          access_token_url='https://accounts.google.com/o/oauth2/token',
-                          access_token_method='POST',
-                          access_token_params={'grant_type': 'authorization_code'},
-                          consumer_key=GOOGLE_CLIENT_ID,
-                          consumer_secret=GOOGLE_CLIENT_SECRET)
+google = oauth.remote_app( 'google',
+    consumer_key=NEW_CLIENT_ID,
+    consumer_secret=NEW_CLIENT_SECRET,
+    request_token_params={ 'scope': 'https://www.googleapis.com/auth/contacts.readonly'},
+    base_url='https://accounts.google.com/o/oauth2/auth',
+    authorize_url='https://accounts.google.com/o/oauth2/auth',
+    access_token_method='POST',
+    access_token_url='https://oauth2.googleapis.com/token',
+    request_token_url=None,
+)
 
 @app.route('/')
 def index():
     access_token = session.get('access_token')
     if access_token is None:
         return redirect(url_for('login'))
-
     access_token = access_token[0]
 
-
     headers = {'Authorization': 'OAuth '+access_token}
-    req = urllib.request.urlopen('https://www.googleapis.com/oauth2/v1/userinfo', None, headers)
+    data = requests.get('https://people.googleapis.com/v1/people/me/connections?pageSize=1000&personFields=names%2CemailAddresses%2CphoneNumbers&sortOrder=FIRST_NAME_ASCENDING&key='+API_KEY, headers=headers)
+    data = data.json()
 
-    try:
-        res = urllib.request.urlopen(req)
-    except urllib.error.URLError:
-        if urllib.error.URLError == 401:
-            # Unauthorized - bad token
-            session.pop('access_token', None)
-            return redirect(url_for('login'))
-        return res.read()
+    # FILTER ONLY CONTACTS WITH EMAIL
+    data = [x for x in data['connections'] if 'emailAddresses' in x]
 
-    return res.read()
+    # FILTER ONLY @GMAIL
+    data_gmail = [x for x in data if x['emailAddresses'][0]['value'].find('@gmail.com') != -1]
 
+    # FILTER ONLY @HOTMAIL
+    data_hotmail = [x for x in data if x['emailAddresses'][0]['value'].find('@hotmail.com') != -1]
+
+    data = {'hotmail': data_hotmail, 'gmail': data_gmail}
+
+    return render_template('home.html', data=data)
 
 @app.route('/login')
 def login():
-    callback=url_for('authorized', _external=True)
-    return google.authorize(callback=callback)
+    return google.authorize(callback=url_for('authorized', _external=True))
 
-
-@app.route(REDIRECT_URI)
-@google.authorized_handler
-def authorized(resp):
-    access_token = resp['access_token']
-    session['access_token'] = access_token, ''
+@app.route('/authorized')
+def authorized():
+    resp = google.authorized_response()
+    if resp is None:
+        return 'Access denied: error=%s' % (
+            request.args['error']
+        )
+    if isinstance(resp, dict) and 'access_token' in resp:
+        session['access_token'] = (resp['access_token'], '')
     return redirect(url_for('index'))
 
 
@@ -75,10 +73,8 @@ def authorized(resp):
 def get_access_token():
     return session.get('access_token')
 
-
 def main():
     app.run()
-
 
 if __name__ == '__main__':
     main()

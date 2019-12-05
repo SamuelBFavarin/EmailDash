@@ -5,8 +5,18 @@
   </head>
 
   <body>
+
     <div>
-      <h1>Olá internet</h1>
+      <h3>Hotmail list:</h3>
+      {% for item in data.hotmail %}
+        <li><a>{{ item.names[0].displayName }} | {{ item.emailAddresses[0].value }} </a></li>
+      {% endfor %}
+
+      <h3>Gmail list:</h3>
+      {% for item in data.gmail %}
+        <li><a>{{ item.names[0].displayName }} | {{ item.emailAddresses[0].value }} </a></li>
+      {% endfor %}
+
     </div>
 
   </body>
