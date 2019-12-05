@@ -1,21 +1,42 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Login</title>
+    <title>Email Dash</title>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js'></script>
   </head>
 
   <body>
 
     <div>
-      <h3>Hotmail list:</h3>
+      <h3>Hotmail list ({{data.hotmail_size}}):</h3>
       {% for item in data.hotmail %}
         <li><a>{{ item.names[0].displayName }} | {{ item.emailAddresses[0].value }} </a></li>
       {% endfor %}
 
-      <h3>Gmail list:</h3>
+      <h3>Gmail list ({{data.gmail_size}}):</h3>
       {% for item in data.gmail %}
         <li><a>{{ item.names[0].displayName }} | {{ item.emailAddresses[0].value }} </a></li>
       {% endfor %}
+
+      <h3>Pie Chart:</h3>
+      <canvas id="chart" width="350" height="250"></canvas>
+      <script>
+        var pieData = [
+            {
+              value: {{data.hotmail_size}},
+              label: "HOTMAIL",
+              color: 'red'
+            },{
+              value: {{data.gmail_size}},
+              label: "GMAIL",
+              color: 'blue'
+            }
+        ];
+
+        var mychart = document.getElementById("chart").getContext("2d");
+        new Chart(document.getElementById("chart").getContext("2d")).Pie(pieData);
+      </script>
+
 
     </div>
 

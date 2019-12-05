@@ -49,7 +49,11 @@ def index():
     # FILTER ONLY @HOTMAIL
     data_hotmail = [x for x in data if x['emailAddresses'][0]['value'].find('@hotmail.com') != -1]
 
-    data = {'hotmail': data_hotmail, 'gmail': data_gmail}
+    data = {'hotmail': data_hotmail,
+            'hotmail_size': len(data_hotmail),
+            'gmail': data_gmail,
+            'gmail_size': len(data_gmail),
+            'total': len(data_gmail) + len(data_hotmail)}
 
     return render_template('home.html', data=data)
 
