@@ -78,7 +78,7 @@ def logout():
     return redirect('https://mail.google.com/mail/u/0/?logout')
 
 def main():
-    app.run()
+    app.run(host='0.0.0.0')
 
 if __name__ == '__main__':
     main()
