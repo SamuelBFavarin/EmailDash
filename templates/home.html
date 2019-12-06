@@ -1,44 +1,112 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Email Dash</title>
+
+    <!-- Material Design for Bootstrap fonts and icons -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons">
+
+    <!-- Material Design for Bootstrap CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css" integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
+
+    <!-- Chart Js -->
     <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js'></script>
   </head>
 
   <body>
 
-    <div>
-      <h3>Hotmail list ({{data.hotmail_size}}):</h3>
-      {% for item in data.hotmail %}
-        <li><a>{{ item.names[0].displayName }} | {{ item.emailAddresses[0].value }} </a></li>
-      {% endfor %}
+    <ul class="nav nav-tabs bg-primary">
+      <li class="nav-item">
+        <a class="nav-link active" href="#">Conecta Dash</a>
+      </li>
 
-      <h3>Gmail list ({{data.gmail_size}}):</h3>
-      {% for item in data.gmail %}
-        <li><a>{{ item.names[0].displayName }} | {{ item.emailAddresses[0].value }} </a></li>
-      {% endfor %}
+      <li class="nav-item">
+        <a class="nav-link" href="#">Logout</a>
+      </li>
 
-      <h3>Pie Chart:</h3>
-      <canvas id="chart" width="350" height="250"></canvas>
-      <script>
-        var pieData = [
-            {
-              value: {{data.hotmail_size}},
-              label: "HOTMAIL",
-              color: 'red'
-            },{
-              value: {{data.gmail_size}},
-              label: "GMAIL",
-              color: 'blue'
-            }
-        ];
-
-        var mychart = document.getElementById("chart").getContext("2d");
-        new Chart(document.getElementById("chart").getContext("2d")).Pie(pieData);
-      </script>
+    </ul>
+    <br>
 
 
+    <div class="container">
+
+      <div class="row">
+
+        <div class="col-md-4 card">
+          <!-- PIE -->
+          <div class="card-body">
+            <h5 class="card-title">Pie Chart</h5>
+            <canvas id="chart" width="300" height="200"></canvas>
+
+            <p class="card-text"> Have {{data.gmail_size}} user with @gmail, and {{data.hotmail_size}} users with @hotmail.</p>
+            <!-- Pie Chart Config -->
+            <script>
+              var pieData = [
+                  {
+                    value: {{data.hotmail_size}},
+                    label: "HOTMAIL",
+                    color: 'red'
+                  },{
+                    value: {{data.gmail_size}},
+                    label: "GMAIL",
+                    color: 'blue'
+                  }
+              ];
+
+              var mychart = document.getElementById("chart").getContext("2d");
+              new Chart(document.getElementById("chart").getContext("2d")).Pie(pieData);
+            </script>
+          </div>
+        </div>
+
+        <div class="col-md-4 card">
+          <!-- HOTMAIL LIST -->
+          <div class="card-body">
+            <h5 class="card-title">@Hotmail users ({{data.gmail_size}})</h5>
+            <ul class="list-group bmd-list-group-sm">
+              {% for item in data.hotmail %}
+              <a class="list-group-item">
+                <i class="material-icons">person</i>
+                <div class="bmd-list-group-col">
+                  <p class="list-group-item-heading">{{ item.names[0].displayName }}</p>
+                  <p class="list-group-item-text">{{ item.emailAddresses[0].value }}</p>
+                </div>
+              </a>
+              {% endfor %}
+            </ul>
+          </div>
+
+        </div>
+
+        <div class="col-md-4 card">
+          <div class="card-body">
+            <h5 class="card-title">@Gmail users ({{data.gmail_size}})</h5>
+
+            <ul class="list-group bmd-list-group-sm">
+              {% for item in data.gmail %}
+              <a class="list-group-item">
+                <i class="material-icons">person</i>
+                <div class="bmd-list-group-col">
+                  <p class="list-group-item-heading">{{ item.names[0].displayName }}</p>
+                  <p class="list-group-item-text">{{ item.emailAddresses[0].value }}</p>
+                </div>
+              </a>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+
+      </div>
     </div>
+
+
+    <!-- BOOTSTRAP MATERIAL DESIGN JS IMPORT -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/popper.js@1.12.6/dist/umd/popper.js" integrity="sha384-fA23ZRQ3G/J53mElWqVJEGJzU0sTs+SvzG8fXVWP+kJQ1lwFAOkcUOysnlKJC33U" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js" integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9" crossorigin="anonymous"></script>
+    <script>$(document).ready(function() { $('body').bootstrapMaterialDesign(); });</script>
 
   </body>
 
