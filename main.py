@@ -5,8 +5,6 @@ import os
 from flask_oauthlib.client import OAuth
 import json
 
-#os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = 'true'
-
 NEW_CLIENT_ID = '139796878208-bqcvtsqfmfm2qkd0m35m2tgihl2luam5.apps.googleusercontent.com'
 NEW_CLIENT_SECRET = 'TIRxLNbmOn3olWBQOWb6RfCi'
 API_KEY = 'AIzaSyDwWdr5wUhm-e1nRYMvCh4W8Aaddim9jLU'
