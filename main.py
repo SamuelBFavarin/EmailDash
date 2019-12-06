@@ -5,7 +5,7 @@ import os
 from flask_oauthlib.client import OAuth
 import json
 
-os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = 'true'
+#os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = 'true'
 
 NEW_CLIENT_ID = '139796878208-bqcvtsqfmfm2qkd0m35m2tgihl2luam5.apps.googleusercontent.com'
 NEW_CLIENT_SECRET = 'TIRxLNbmOn3olWBQOWb6RfCi'
@@ -37,7 +37,7 @@ def index():
     access_token = access_token[0]
 
     headers = {'Authorization': 'OAuth '+access_token}
-    data = requests.get('https://people.googleapis.com/v1/people/me/connections?pageSize=1000&personFields=names%2CemailAddresses%2CphoneNumbers&sortOrder=FIRST_NAME_ASCENDING&key='+API_KEY, headers=headers)
+    data = requests.get('https://people.googleapis.com/v1/people/me/connections?pageSize=2000&personFields=names%2CemailAddresses%2CphoneNumbers&sortOrder=FIRST_NAME_ASCENDING&key='+API_KEY, headers=headers)
     data = data.json()
 
     # FILTER ONLY CONTACTS WITH EMAIL
@@ -65,17 +65,19 @@ def login():
 def authorized():
     resp = google.authorized_response()
     if resp is None:
-        return 'Access denied: error=%s' % (
-            request.args['error']
-        )
+        return 'Access denied: error=%s' % (request.args['error'])
     if isinstance(resp, dict) and 'access_token' in resp:
         session['access_token'] = (resp['access_token'], '')
     return redirect(url_for('index'))
 
-
 @google.tokengetter
 def get_access_token():
     return session.get('access_token')
+
+@app.route('/logout')
+def logout():
+    session.clear()
+    return redirect('https://mail.google.com/mail/u/0/?logout')
 
 def main():
     app.run()
